@@ -28,7 +28,7 @@ mod impls;
 /// Common types for all runtimes
 pub mod types {
 	use codec::{CompactAs, Decode, Encode, MaxEncodedLen};
-	use frame_support::traits::EnsureOneOf;
+	use frame_support::traits::EitherOfDiverse;
 	use frame_system::EnsureRoot;
 	use pallet_collective::EnsureProportionAtLeast;
 	use scale_info::TypeInfo;
@@ -39,7 +39,7 @@ pub mod types {
 	use sp_std::vec::Vec;
 
 	// Ensure that origin is either Root or fallback to use EnsureOrigin `O`
-	pub type EnsureRootOr<O> = EnsureOneOf<EnsureRoot<AccountId>, O>;
+	pub type EnsureRootOr<O> = EitherOfDiverse<EnsureRoot<AccountId>, O>;
 
 	/// The council
 	pub type CouncilCollective = pallet_collective::Instance1;
