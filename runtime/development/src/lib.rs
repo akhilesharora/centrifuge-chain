@@ -789,8 +789,14 @@ impl pallet_fees::Config for Runtime {
 	type WeightInfo = weights::pallet_fees::SubstrateWeight<Self>;
 }
 
+parameter_types! {
+	pub const PreCommitDeposit: Balance = 100 * CFG;
+}
+
 impl pallet_anchors::Config for Runtime {
 	type WeightInfo = ();
+	type Currency = Balances;
+	type PreCommitDeposit = PreCommitDeposit;
 }
 
 impl pallet_collator_allowlist::Config for Runtime {

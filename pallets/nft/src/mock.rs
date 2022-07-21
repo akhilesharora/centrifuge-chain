@@ -205,9 +205,14 @@ impl chainbridge::Config for MockRuntime {
 	type WeightInfo = ();
 }
 
-// Implement Centrifuge Chain anchors pallet for the mock runtime
+parameter_types! {
+	pub const PreCommitDeposit: Balance = 1;
+}
+
 impl pallet_anchors::Config for MockRuntime {
 	type WeightInfo = ();
+	type Currency = Balances;
+	type PreCommitDeposit = PreCommitDeposit;
 }
 
 // Implement Centrifuge Chain fees pallet for the mock runtime

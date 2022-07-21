@@ -285,9 +285,16 @@ impl pallet_bridge_mapping::Config for MockRuntime {
 	type WeightInfo = ();
 }
 
+// Parameterize Centrifuge Chain anchors pallet
+parameter_types! {
+	pub const PreCommitDeposit: Balance = 1;
+}
+
 // Implement Centrifuge Chain anchors pallet for the mock runtime
 impl pallet_anchors::Config for MockRuntime {
 	type WeightInfo = ();
+	type Currency = Balances;
+	type PreCommitDeposit = PreCommitDeposit;
 }
 
 // Parameterize Centrifuge Chain bridge pallet

@@ -134,8 +134,14 @@ impl pallet_fees::Config for Test {
 	type WeightInfo = ();
 }
 
+parameter_types! {
+	pub const PreCommitDeposit: Balance = 1;
+}
+
 impl Config for Test {
 	type WeightInfo = ();
+	type Currency = Balances;
+	type PreCommitDeposit = PreCommitDeposit;
 }
 
 impl Test {
