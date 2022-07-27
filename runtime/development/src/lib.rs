@@ -9,8 +9,8 @@ use frame_support::sp_std::marker::PhantomData;
 use frame_support::{
 	construct_runtime, parameter_types,
 	traits::{
-		AsEnsureOriginWithArg, Contains, EnsureOneOf, EqualPrivilegeOnly, Everything,
-		InstanceFilter, LockIdentifier, U128CurrencyToVote, UnixTime,
+		AsEnsureOriginWithArg, Contains, EnsureOneOf, EqualPrivilegeOnly, InstanceFilter,
+		LockIdentifier, U128CurrencyToVote, UnixTime,
 	},
 	weights::{
 		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight},
@@ -133,9 +133,41 @@ parameter_types! {
 	pub const SS58Prefix: u8 = 136;
 }
 
+/// Base Call Filter
+/// We block any call that could lead for tranche tokens to be transferred through XCM.
+pub struct BaseCallFilter;
+impl Contains<Call> for BaseCallFilter {
+	fn contains(c: &Call) -> bool {
+		match c {
+			Call::PolkadotXcm(method) => match method {
+				//TODO(nuno): check that origin is root()
+				pallet_xcm::Call::limited_reserve_transfer_assets { origin, .. } => origin == Origin::root(),
+				pallet_xcm::Call::limited_teleport_assets { .. }
+				| pallet_xcm::Call::reserve_transfer_assets { .. }
+				| pallet_xcm::Call::send { .. } => false,
+				pallet_xcm::Call::teleport_assets { .. } | _ => true,
+			},
+			Call::XTokens(method) => match method {
+				orml_xtokens::Call::transfer {
+					currency_id: CurrencyId::Tranche(_, _),
+					..
+				} |
+				orml_xtokens::Call::transfer_with_fee {
+					currency_id: CurrencyId::Tranche(_, _),
+					..
+				} |
+				orml_xtokens::Call::transfer_multicurrencies { .. }
+					=> false,
+				_ => true,
+			},
+			_ => true,
+		}
+	}
+}
+
 // system support impls
 impl frame_system::Config for Runtime {
-	type BaseCallFilter = Everything;
+	type BaseCallFilter = BaseCallFilter;
 	type BlockWeights = RuntimeBlockWeights;
 	type BlockLength = RuntimeBlockLength;
 	/// The ubiquitous origin type.
