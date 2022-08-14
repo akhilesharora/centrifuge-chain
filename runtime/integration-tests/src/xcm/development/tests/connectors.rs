@@ -106,6 +106,28 @@ fn add_pool_works() {
 	// fees_location: VersionedMultiLocation,
 	// fee_payer: T::AccountId,
 
+	let meta: AssetMetadata<Balance, CustomMetadata> = AssetMetadata {
+		decimals: 18,
+		name: "Moonbeam".into(),
+		symbol: "mDEV".into(),
+		existential_deposit: 1_000_000_000_000,
+		location: Some(VersionedMultiLocation::V1(moonbeam_native_token.clone())),
+		additional: CustomMetadata::default(),
+	};
+
+	assert_ok!(OrmlAssetRegistry::register_asset(
+			Origin::root(),
+			meta,
+			Some(CurrencyId::ForeignAsset(1))
+		));
+
+	assert_ok!(OrmlTokens::set_balance(
+			Origin::root(),
+			ALICEID.into(),
+			CurrencyId::ForeignAsset(1),
+			1_000_000_000_000_000_000_000,
+			0
+		));
 	Moonbeam::execute_with(|| {
 		assert_eq!(Balances::free_balance(&ALICE.into()), cfg(10));
 	});
